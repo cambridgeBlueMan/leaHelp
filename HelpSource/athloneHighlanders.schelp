@@ -1,0 +1,147 @@
+title:: Algorithmic Athone Highlanders
+categories:: Leas Documents
+summary:: takes the rhythmic framework of the Athlone Highlanders jig and creates a simple algorithmic jig
+
+section:: Introduction
+
+This only deals with the A and B sections. Looking at these it is apparent that there are only 4 rhthmic patterns used acroos thse two sctions. I refer to these as feels, they are shown below:
+
+image::athlone_highlanders_feels.png#Figure 1. Rhthymic patterns contained in the Athlone Highlanders jig::
+
+more text
+
+There are only 7 distinct bar patterns in the whole piece.
+
+All the data is generated and collected in advance of the piece playing. This is not an unsensible approach.
+
+All notes are generted at random from a major scale. There is no attempt at defining a harmonic structure for the peice at this stage.
+
+None the less the fact that the structure of ~licks is appropriate for the piece does make it sound like a slightly disturbing folk jig. It is not clear where the sense of disturbance and disorientation comes from.
+
+The pattern of melodic phrases in the original jis is:
+
+sectionA = lick1, lick2, lick1, lick3, lick1, lick2, lick4
+sectionB = lick5, lick6, lick5, lick7, lick5 , lick6, lick4
+
+I find The ssimple elegance of that structure quite astonishing.
+
+It could also be described by:
+
+statement, first reponse,
+statement, second response,
+statement, first response,
+closing statement
+new statement, new first reponse,
+new statement, new second response,
+new statement, first response,
+same closing statement
+//
+//
+// */
+
+
+
+scale from which to derive the melodies
+
+code::
+~gMajor = [67, 69, 71, 72, 74, 76, 78, 79];
+::
+
+initialise the midi stuff
+
+code::
+(
+MIDIClient.init;
+~mOut = MIDIOut.newByName("IAC Driver", "Bus 1").latency_(Server.default.latency);
+)
+::
+
+rhythmic feels expressed as arrays
+
+code::
+(
+~feel1 = [3,1,1,1];
+~feel2 = [1,1,1,1,1,1];
+~feel3 = [1,1,1,3];
+~feel4 = [1,1,1,2,1];
+)
+::
+
+now build each melodic fragment from its rhythmic feel and the appropriate scale notes
+code::
+(
+// lick1
+~lick1 = Pseq(
+	~feel1.collect({|item, i|
+		[~gMajor.choose, item]
+	})
+, 1);
+
+// lick2
+~lick2 = Pseq(
+	~feel2.collect({|item, i|
+		[~gMajor.choose, item]
+	}); // end collect
+, 1);
+// lick3
+~lick3 = Pseq(
+	~feel2.collect({|item, i|
+		[~gMajor.choose, item]
+	}); // end collect
+
+, 1);
+// lick4
+~lick4 = Pseq(
+	~feel2.collect({|item, i|
+		[~gMajor.choose, item]
+	}) ++ ~feel3.collect({|item, i|
+		[~gMajor.choose, item]
+	});
+, 1);
+// lick5
+~lick5 = Pseq(
+	~feel2.collect({|item, i|
+		[~gMajor.choose, item]
+	}); // end collect
+, 1);
+
+// lick6
+~lick6 = Pseq(
+	~feel2.collect({|item, i|
+		[~gMajor.choose, item]
+	}); // end collect
+, 1);
+// lick7
+~lick7 = Pseq(
+	~feel4.collect({|item, i|
+		[~gMajor.choose, item]
+	}).postln; // end collect
+, 1);
+)
+::
+
+
+build the A and B sections
+
+code::
+(
+~sectionA = Pseq([~lick1,~lick2, ~lick1, ~lick3, ~lick1, ~lick2, ~lick4 ], 1);
+~sectionB = Pseq([~lick5, ~lick6, ~lick5, ~lick7, ~lick5 , ~lick6, ~lick4], 1);
+
+// ************************
+// now build the whole tune
+~athloneHighlanders = Pseq([~sectionA, ~sectionA, ~sectionB, ~sectionB], 2);
+
+// **************************
+// bit of delay, then play it
+SystemClock.sched(1, {
+	Pbind(
+		\type, \midi,
+		\midicmd, \noteOn,
+		\midiout, ~mOut,
+		\chan, 0,
+		[\midinote, \dur],  ~athloneHighlanders
+	).play(TempoClock.new(5)); // end pbind
+});
+)
+::

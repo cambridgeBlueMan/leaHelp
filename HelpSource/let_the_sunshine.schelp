@@ -1,0 +1,30 @@
+title:: Let The Sunshine Bass
+categories:: Leas Documents
+summary:: creates a bass line for Let The Sunshine
+
+section:: Introduction
+
+The late 1960's song "Let the Sunshine" contains a famous semi improvised syncopated? bass pattern?
+This is an attempt to get to the bottom of that pattern and so algorithmically generate a similar line.
+This willl probably need a series of rfinements, but it is worth documenting each stage I suspect.
+
+
+
+image::let_the_sunshine_1.png#Figure 1. Some of the most basic patterns jig::
+
+A bar contains 4 beats. Most of the rhthmic interest is on beats 2 and 3. Beats 1 tends to be either a crotchet or 2 quavers. Typically on the same root note. Same applies to beat 4, and so we can happily constrain to that at least to start with.
+
+code::
+~beat1or4 = Pbind(
+		\scale, Scale.minor,
+		\dur, Prand([Pseq([0.5, 0.5], 1), 1], 1),
+		\degree, (0)
+).play(TempoClock.new(110/60))
+::
+
+I am supplying the chord sequence as a list of strings which indicate chords i.e.
+
+code::
+~sequence = ["b", "F#7", "F#7", "b", "G", "D"];
+::
+

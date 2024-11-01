@@ -1,0 +1,163 @@
+title:: Take My Breath Away patterns
+categories:: Leas Documents
+summary:: Exploration of some simple patterns using chord sequences from take my breath away
+related:: Lea Patterns
+
+This is the help file for the chump change generator. A kind of algorythmic busking machine
+
+section:: Introduction
+
+This code was originally worked on on in 2014. The chord sequence is in reverse. I.e. the C Em Am Em
+sequence follows the Dm F G G7 sequence. It's important to hold to this for now as I am trying to keep
+this as close as possible to the file supplied to n and f
+
+subsection:: Setup
+
+
+All the code assumes you are outputting to an external midi soft synth such as Grand Rhapsody. Something like the following lines will set this up.
+
+code::
+MIDIClient.init;
+
+(
+~mOut = MIDIOut.newByName("IAC Driver", "Bus 1").latency_(Server.default.latency);
+)
+::
+
+subsection:: Underlying bass rhythmic pattern.
+
+This is shown below. Minim, crotchet, crotchet, semibreve, semibreve pattern is incredibly simple,
+none the less this very simplicity holds whatever goes on over the top firmly in place
+
+
+image::Take_my_breath_away_1.png#Figure 1. Simple underlying bass rhythmic pattern::
+
+section:: Dm F G G7 sequence
+
+The treble part is a single pattern across the whole sequence. All notes of a C major scale with the exception of B. There is a 1 in ten chance of a rest
+
+code::
+(
+ ~trebleDmin_F_G_G7 = Pbind(
+ 	//\pan, -1,
+ 	\type, \midi,
+ 	\midicmd, \noteOn,
+ 	\midiout, ~mOut,
+ 	\chan, 0,
+ 	\midinote, Pwrand([Rest(0.5), 55, 67, 60, 62, 64, 65 ], [0.1, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2], 96),
+ 	\dur  , Pseq([Pseq([0.5], 8), Pseq([1], 4)], 8)
+ ).play(TempoClock.new(2));
+)
+::
+
+I suspect the bass part is flawed in that it runs through both sequences
+
+code::
+(
+ ~bassDmin_F_G_G7 = Pbind(
+ 	//\pan, -1,
+ 	\type, \midi,
+ 	\midicmd, \noteOn,
+ 	\midiout, ~mOut,
+ 	\chan, 0,
+ 	\midinote, Pseq([
+ 		50, 62, 62, 48, 60, 60, 43, 41,
+ 		48,60,60,47,59,59, 41, 43
+ 	], inf),
+ 	\dur  , Pseq([2,1,1,2,1,1,4,4], 4)
+ ).play(TempoClock.new(2));
+)
+::
+
+section:: C Em Am Em sequence
+
+Here we have a random bar followed by a scored arpeggio bar followed by a random bar and then finally a scored bar that is one note different to the previous scored bar
+
+subsection:: C chord
+
+code::
+(
+// following will produce a random major third chord or a ninth
+~trebleNotesC = Prand([[60,64], 62], 16);
+~trebleDursC = Pseq([0.5], 16);
+Pbind(
+	//\pan, -1,
+	\type, \midi,
+	\midicmd, \noteOn,
+	\midiout, ~mOut,
+	\chan, 0,
+	\midinote, ~trebleNotesC,
+	\dur  , ~trebleDursC
+).play(TempoClock.new(2));
+)
+::
+
+subsection:: First E minor chord
+
+this is a doodle from the piano implemented as pattern
+E,B,A,B, or 1, 5, 4, 5, a suspended fourth kind of thing
+code::
+
+(
+
+~trebleNotesEmin_1 = Pseq([64, 59, 67, 59], 4);
+~trebleDursEmin_1 = Pseq([0.5], 16);
+
+Pbind(
+	//\pan, -1,
+	\type, \midi,
+	\midicmd, \noteOn,
+	\midiout, ~mOut,
+	\chan, 0,
+	\midinote, ~trebleNotesEmin_1,
+	\dur  , ~trebleDursEmin_1
+).play(TempoClock.new(2));
+
+)
+::
+
+subsection:: A minor chord
+
+This time we are using a weighted Amin7 with no third
+
+code::
+(
+~trebleNotesAmin = Pxrand([69, 67, 64, 67, 69, 67/*, Rest*/], 16 );
+~trebleDursAmin = Pseq([0.5],16);
+Pbind(
+	//\pan, -1,
+	\type, \midi,
+	\midicmd, \noteOn,
+	\midiout, ~mOut,
+	\chan, 0,
+	\midinote, ~trebleNotesAmin,
+	\dur  , ~trebleDursAmin
+).play(TempoClock.new(2));
+
+
+)
+::
+
+subsection:: Second E minor chord
+
+This varies from the first pattern by a single noe i.e. the pctave up B
+substituted for an E
+code::
+
+(
+~trebleNotesEmin_2 = Place([[64, 64, 71, 64], 59, 67, 59], 4);
+~trebleDursEmin_2 = Pseq([0.5], 16);
+Pbind(
+	//\pan, -1,
+	\type, \midi,
+	\midicmd, \noteOn,
+	\midiout, ~mOut,
+	\chan, 0,
+	\midinote, ~trebleNotesEmin_2,
+	\dur  , ~trebleDursEmin_2
+).play(TempoClock.new(2));
+
+
+)
+::
+
